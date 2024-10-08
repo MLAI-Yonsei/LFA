@@ -1,0 +1,5 @@
+*.pyc
+domainbed/__pycache__/
+results/
+caltech_images_20210113.json
+
