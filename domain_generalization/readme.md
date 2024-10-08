@@ -24,7 +24,7 @@ python -m domainbed.scripts.sweep launch \
        --n_hparams 5 \
        --find_hparams 1 or 0 (default: 0) \
        --test_hparams 1 or 0 (default: 0) \ 
-       --load_pretrained 1 or 0 (default: 0) \
+       --load_pretrained_qlora 1 or 0 (default: 0) \
        --activate_layer_lpclip 0~11 (default: -1) \
        --hparams "{\"clip_backbone\": \"ViT-B/16\"}"
 	
