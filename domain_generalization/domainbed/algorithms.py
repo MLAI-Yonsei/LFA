@@ -134,7 +134,7 @@ class CLIP_LFA(nn.Module):
         text_width = hparams["text_width"] if "text_width" in hparams else 512
         image_width = hparams["image_width"] if "image_width" in hparams else 768
         output_dim = hparams["output_dim"] if "output_dim" in hparams else 512
-        rank = hparams["rank"] if "rank" in hparams else 10
+        rank = hparams["rank"] if "rank" in hparams else None
         print("\nrank is", rank, "\n")
         self.scaler = np.sqrt(output_dim)
 
