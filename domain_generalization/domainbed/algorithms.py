@@ -17,6 +17,11 @@ from domainbed.lib.misc import random_pairs_of_minibatches
 import clip
 from clip.model import ResidualAttentionBlock
 
+# CLIP QLoRA
+from transformers import (CLIPProcessor, CLIPModel, TrainingArguments, AutoTokenizer,
+                          AutoModelForCausalLM, BitsAndBytesConfig)
+from peft import LoraConfig, get_peft_model
+
 ALGORITHMS = [
     # some algorithms moved to 'other_algorithms.py'
     "ZSCLIP",

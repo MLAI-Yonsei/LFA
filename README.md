@@ -1,6 +1,6 @@
-<!-- # LFA: Layer-wise Features Aggregation for Efficient Transfer Learning
+# LFA: Efficient Transfer Learning driven by Layer-wise Features Aggregation
 
-Executable code for "Layer-wise Features Aggregation for Efficient Transfer Learning (LFA)"
+Executable code for "Efficient Transfer Learning driven by Layer-wise Features Aggregation"
 
 In this study, we propose a novel approach called Layer-wise Feature Aggregation (LFA), which utilizes features from all layers of a pre-trained model with instance-specific importance.
 First, LFA captures hierarchical features from low-level to high-level, enabling the extraction of richer and more general features; therefore, it significantly improves the performance in domain shift and few-shot learning. 
@@ -21,15 +21,19 @@ LFA is a new efficient transfer learning approach with improved performance and 
 ---
 # Results
 
-![conclusion](images/conclusion.png)
+![conclusion](images/fixed_figure4.png)
 
-The Zero-shot CLIP model incorrectly predicts the elephant picture above as a human with a 47\% probability. As a result of applying our methodology to the pre-trained CLIP model, we observed that the activation proportion for each attention layer in both encoders are highest in the last layer, as indicated in the table below. However, utilizing only the last layer in the CLIP + LFA model, which is similar to fine-tuning a new classification layer on the last layer, leads to an incorrect prediction of `dog' with a probability of approximately 52\%. When aggregating features from all layers, the model correctly predicts an elephant with a 48\% probability.
+The image depicts an elephant from the PACS dataset. but the LinearProbing CLIP model misclassifies it as a horse. Observing the activation proportion when applying our methodology, we note that the last layer exhibits the highest activation. However, a model utilizing only the features of the last layer classifies this picture as a giraffe, correctly predicting it as an elephant only when all layers are used.
 
-![score](images/domainbed.png)
+![score](images/domaingenalization.JPG)
 
 The best scores are bolded, and the second-best scores are underlined. CLIP + LFA demonstrates superior performance compared to DPLCLIP, DeiT, and HViT across VLCS, PACS, and OfficeHome datasets. Additionally, the average of our results showcases the best overall performance.
 
---- -->
+![efficiency](images/efficiency.JPG)
+
+\* indicates that experiments were conducted with a batch size of 8 due to memory constraints. In our model with LFA, peak memory usage is slightly higher than LinearProbing CLIP but still lower than CLIP + DPL and CLIP + QLoRA. Despite the trainable parameters, training and inference times remain as short as those of LinearProbing CLIP, demonstrating that our model is both lightweight and efficient while improving generalization performance.
+
+---
 # Usage
 
 ## Installation

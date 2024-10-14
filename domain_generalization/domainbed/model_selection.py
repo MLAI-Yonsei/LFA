@@ -35,12 +35,12 @@ class SelectionMethod:
                 lambda _, run_records: (
                     self.run_acc(
                         run_records
-                    ),  # trial 별 가장 valid 점수가 높게 나온 dict를 반환한다.
+                    ),
                     run_records,
                 )
             )
             .filter(lambda x: x[0] is not None)
-            .sorted(  # 반복 실험 중에서도 성능이 좋게 나온 순서대로 정렬한다.
+            .sorted(
                 key=lambda x: x[0]["val_acc"]
             )[::-1]
         )
@@ -55,7 +55,7 @@ class SelectionMethod:
             #     print("val_acc:", x[0]['val_acc'])
             #     print("hparams_seed:", x[1][0]['args']['hparams_seed'])
             #     print("trial_seed:", x[1][0]['args']['trial_seed'])
-            #     print("seed:", x[1][0]['args']['seed'])     # hparams나 trial과 동시에 seed도 계속 달라진다.
+            #     print("seed:", x[1][0]['args']['seed'])
 
             print("\n**Found best hparams_seed on best validation score!**")
             print(

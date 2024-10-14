@@ -1,7 +1,7 @@
 import os
 import re
 
-dataset_path = "/data4/kchanwo/clipall/datasets/PACS"
+dataset_path = "/datasets/PACS"
 
 if __name__ == '__main__':
     os.makedirs(dataset_path, exist_ok=True)

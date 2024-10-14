@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
     ### wandb
     if args.find_hparams == 1:
-        args.steps = 3001   # 3000번의 스텝으로도 경향을 파악할 수 있다.
+        args.steps = 3001
     #     if args.activate_layer_lpclip == -1:
     #         wandb.run.name = f"find_hparams-{args.output_dir.split('/')[-2]}-test{args.test_envs[0]}-trial_seed{args.trial_seed}-hparams_seed{args.hparams_seed}-step{args.steps}"
     #     else:
@@ -186,7 +186,6 @@ if __name__ == "__main__":
 
     # Split each env into an 'in-split' and an 'out-split'. We'll train on
     # each in-split except the test envs, and evaluate on all splits.
-    # NOTE: test_env의 것을 제외한 모든 out-split은 Validation에 사용되고 오직 test_env의 in-split만 Test에 사용된다.
 
     # To allow unsupervised domain adaptation experiments, we split each test
     # env into 'in-split', 'uda-split' and 'out-split'. The 'in-split' is used
@@ -209,9 +208,9 @@ if __name__ == "__main__":
             misc.seed_hash(args.trial_seed, env_i),
         )
 
-        if env_i in args.test_envs:  # args.task != 'doamin_adaptation'이면 의미 X
+        if env_i in args.test_envs:
             uda, in_ = misc.split_dataset(
-                in_,  # 위 케이스의 경우, 앞에서 분할된 train은 그대로.
+                in_,
                 int(len(in_) * args.uda_holdout_fraction),
                 misc.seed_hash(args.trial_seed, env_i),
             )
@@ -225,20 +224,20 @@ if __name__ == "__main__":
             in_weights, out_weights, uda_weights = None, None, None
         in_splits.append(
             (in_, in_weights)
-        )  # class별 분포를 고려하여 학습 데이터셋인 in_splits 생성, test_envs 포함
+        )
         out_splits.append(
             (out, out_weights)
-        )  # class별 분포를 고려하여 평가 데이터셋인 out_splits 생성, test_envs 포함
+        )
 
         if len(uda):
             uda_splits.append((uda, uda_weights))
 
     train_loaders = [
-        InfiniteDataLoader(  # 여기서 test_envs 제외
+        InfiniteDataLoader(
             dataset=env,
             weights=env_weights,
             batch_size=hparams["batch_size"],
-            # batch_size=32,  # for 효율성 실험
+            # batch_size=32,
             num_workers=dataset.N_WORKERS,
         )
         for i, (env, env_weights) in enumerate(in_splits)
@@ -246,11 +245,11 @@ if __name__ == "__main__":
     ]
 
     uda_loaders = [
-        InfiniteDataLoader(  # args.task != 'doamin_adaptation'이면 실행 X
+        InfiniteDataLoader(
             dataset=env,
             weights=env_weights,
             batch_size=hparams["batch_size"],
-            # batch_size=32,  # for 효율성 실험
+            # batch_size=32,
             num_workers=dataset.N_WORKERS,
         )
         for i, (env, env_weights) in enumerate(uda_splits)
@@ -259,9 +258,9 @@ if __name__ == "__main__":
 
     if (
         args.find_hparams
-    ):  # Training-domain validation set (IIDAccuracySelectionMethod) 에서 동작한다.
+    ):  # Training-domain validation set (IIDAccuracySelectionMethod)
         eval_loaders = [
-            FastDataLoader(  # 모든 envs의 valid 데이터셋 생성, test 데이터셋 제외
+            FastDataLoader(
                 dataset=env, batch_size=64, num_workers=dataset.N_WORKERS
             )
             for env, _ in (out_splits + uda_splits)
@@ -271,16 +270,16 @@ if __name__ == "__main__":
         eval_loader_names += ["env{}_uda".format(i) for i in range(len(uda_splits))]
     elif (
         args.test_hparams
-    ):  # Training-domain validation set (IIDAccuracySelectionMethod) 에서 동작한다.
+    ):  # Training-domain validation set (IIDAccuracySelectionMethod)
         eval_loaders = [
-            FastDataLoader(  # test_envs 데이터에 대한 test 데이터셋 생성
+            FastDataLoader(
                 dataset=env, batch_size=64, num_workers=dataset.N_WORKERS
             )
             for i, (env, _) in enumerate(in_splits)
             if i == args.test_envs[0]
         ]
-        eval_loaders += [ # NOTE: 더 빠른 실험을 위해 validation을 제외하고 진행할 수 있음. 이 경우 마지막 step의 결과를 사용.
-            FastDataLoader(  # best valid를 찾기 위해 모든 envs의 valid 데이터셋 추가
+        eval_loaders += [
+            FastDataLoader(
                 dataset=env, batch_size=64, num_workers=dataset.N_WORKERS
             )
             for env, _ in (out_splits + uda_splits)
@@ -288,13 +287,13 @@ if __name__ == "__main__":
         eval_weights = [
             None for i, (_, weights) in enumerate(in_splits) if i == args.test_envs[0]
         ]
-        eval_weights += [None for _, weights in (out_splits + uda_splits)]  # NOTE: 더 빠른 실험을 위해 validation을 제외하고 진행할 수 있음.
+        eval_weights += [None for _, weights in (out_splits + uda_splits)]
         eval_loader_names = ["env{}_in".format(args.test_envs[0])]
-        eval_loader_names += ["env{}_out".format(i) for i in range(len(out_splits))]    # NOTE: 더 빠른 실험을 위해 validation을 제외하고 진행할 수 있음.
-        eval_loader_names += ["env{}_uda".format(i) for i in range(len(uda_splits))]    # NOTE: 더 빠른 실험을 위해 validation을 제외하고 진행할 수 있음.
+        eval_loader_names += ["env{}_out".format(i) for i in range(len(out_splits))]  
+        eval_loader_names += ["env{}_uda".format(i) for i in range(len(uda_splits))]  
     else:
         eval_loaders = [
-            FastDataLoader(  # 모든 envs의 valid+test 데이터셋 생성, 비효율적
+            FastDataLoader(
                 dataset=env, batch_size=64, num_workers=dataset.N_WORKERS
             )
             for env, _ in (in_splits + out_splits + uda_splits)
@@ -385,7 +384,7 @@ if __name__ == "__main__":
                 "LOG:",
                 f"stop train at step {step}. time is \t{now.strftime('%Y-%m-%d %H:%M:%S')}. train time is \t{str(train_time)}.",
             )        
-            # if step > 0: break # for 효율성 실험
+            # if step > 0: break
             now = datetime.now() + timedelta(hours=9)
             eval_start = now
             print(
